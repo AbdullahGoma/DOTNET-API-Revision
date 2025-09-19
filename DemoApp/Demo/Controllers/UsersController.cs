@@ -11,7 +11,7 @@ public class UsersController : ControllerBase
 {
     // GET: api/<UsersController>
     [HttpGet]
-    [Authorize]
+    [Authorize(Policy = "MustHaveUserName")]
     public IEnumerable<string> Get()
     {
         return new string[] { "value1", "value2" };

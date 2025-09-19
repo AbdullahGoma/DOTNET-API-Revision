@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -27,8 +28,8 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
-    // POST api/auth/token
     [HttpPost("token")]
+    [AllowAnonymous]
     public ActionResult<string> Authenticate([FromBody] AuthRequest data)
     {
         var user = ValidateCredentials(data);
@@ -50,11 +51,10 @@ public class AuthController : ControllerBase
 
     private string GenerateJwtToken(UserData user)
     {
-        
         var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.UserId),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName),
+            new Claim(ClaimTypes.Name, user.UserName),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString())
         };
@@ -74,5 +74,4 @@ public class AuthController : ControllerBase
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
-
 }
